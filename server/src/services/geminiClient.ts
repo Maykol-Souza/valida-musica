@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { env } from "../config/env.js";
+import { NO_LYRICS_MARKER, TRANSCRIPTION_PROMPT } from "../prompts/buildTranscriptionPrompt.js";
 
 const problemSchema = {
   type: Type.OBJECT,
@@ -60,6 +61,35 @@ export async function generateStructuredReview(prompt: string): Promise<string> 
     const text = response.text;
     if (!text) {
       throw new GeminiRequestError("O Gemini retornou uma resposta vazia.");
+    }
+    return text;
+  } catch (error) {
+    if (error instanceof GeminiRequestError) throw error;
+    throw new GeminiRequestError("Falha ao comunicar com a API do Gemini.", error);
+  }
+}
+
+export async function transcribeAudioWithGemini(audio: Buffer, mimeType: string): Promise<string> {
+  try {
+    const response = await client.models.generateContent({
+      model: env.geminiModel,
+      contents: [
+        { text: TRANSCRIPTION_PROMPT },
+        {
+          inlineData: {
+            data: audio.toString("base64"),
+            mimeType,
+          },
+        },
+      ],
+    });
+
+    const text = response.text?.trim();
+    if (!text) {
+      throw new GeminiRequestError("O Gemini retornou uma transcrição vazia.");
+    }
+    if (text === NO_LYRICS_MARKER) {
+      throw new GeminiRequestError("Não foi possível identificar letra cantada neste áudio.");
     }
     return text;
   } catch (error) {

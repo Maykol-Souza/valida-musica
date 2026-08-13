@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { HistorySummary, ReviewResult } from "./types/review";
-import { analyzeMusic, fetchHistory, fetchHistoryEntry } from "./services/api";
+import { analyzeMusic, fetchHistory, fetchHistoryEntry, transcribeAudio } from "./services/api";
 import LyricsForm from "./components/LyricsForm";
 import LoadingState from "./components/LoadingState";
 import ErrorBanner from "./components/ErrorBanner";
@@ -15,6 +15,8 @@ export default function App() {
   const [result, setResult] = useState<ReviewResult | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [history, setHistory] = useState<HistorySummary[]>([]);
+  const [transcribing, setTranscribing] = useState(false);
+  const [transcribeError, setTranscribeError] = useState<string | null>(null);
 
   async function refreshHistory() {
     try {
@@ -44,6 +46,21 @@ export default function App() {
     }
   }
 
+  async function handleTranscribeAudio(file: File): Promise<boolean> {
+    setTranscribing(true);
+    setTranscribeError(null);
+    try {
+      const { lyrics: transcribed } = await transcribeAudio(file);
+      setLyrics(transcribed);
+      return true;
+    } catch (err) {
+      setTranscribeError(err instanceof Error ? err.message : "Erro inesperado ao transcrever o áudio.");
+      return false;
+    } finally {
+      setTranscribing(false);
+    }
+  }
+
   async function handleSelectHistory(id: string) {
     setError(null);
     try {
@@ -58,11 +75,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-[#05070d] text-slate-100">
+      <header className="border-b border-slate-800/80 bg-[#080b14]/95 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
         <div className="mx-auto max-w-6xl px-4 py-5">
-          <h1 className="text-xl font-bold text-slate-900">Revisor Musical Infantil</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-xl font-bold text-slate-50">Revisor Musical Infantil</h1>
+          <p className="text-sm text-slate-400">
             Analise letras de música com IA e avalie a adequação para o público infantil.
           </p>
         </div>
@@ -77,6 +94,9 @@ export default function App() {
             onMusicNameChange={setMusicName}
             onLyricsChange={setLyrics}
             onSubmit={handleAnalyze}
+            transcribing={transcribing}
+            transcribeError={transcribeError}
+            onTranscribeAudio={handleTranscribeAudio}
           />
 
           {error && <ErrorBanner message={error} onRetry={handleAnalyze} />}
@@ -89,7 +109,7 @@ export default function App() {
         </aside>
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-400">
+      <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-slate-500">
         A classificação gerada pela IA é uma ferramenta de apoio à revisão humana, não uma garantia
         absoluta de adequação do conteúdo para crianças.
       </footer>

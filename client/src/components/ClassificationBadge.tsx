@@ -1,9 +1,9 @@
 import type { Classification } from "../types/review";
 
 const STYLES: Record<Classification, { label: string; className: string }> = {
-  APROVADA: { label: "Aprovada", className: "bg-green-100 text-green-800 border-green-300" },
-  ATENCAO: { label: "Atenção", className: "bg-amber-100 text-amber-800 border-amber-300" },
-  REPROVADA: { label: "Reprovada", className: "bg-red-100 text-red-800 border-red-300" },
+  APROVADA: { label: "Aprovada", className: "bg-green-500/15 text-green-300 border-green-600/40" },
+  ATENCAO: { label: "Atenção", className: "bg-amber-500/15 text-amber-300 border-amber-600/40" },
+  REPROVADA: { label: "Reprovada", className: "bg-red-500/15 text-red-300 border-red-600/40" },
 };
 
 export default function ClassificationBadge({ classification }: { classification: Classification }) {
