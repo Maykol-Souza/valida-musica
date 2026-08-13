@@ -17,8 +17,9 @@ transcribeRouter.post("/transcribe", upload.single("audio"), async (req, res) =>
     return res.status(400).json({ error: "Envie um arquivo de áudio." });
   }
 
-  if (!file.mimetype.startsWith("audio/")) {
-    return res.status(400).json({ error: "O arquivo enviado precisa ser um áudio." });
+  const isSupportedType = file.mimetype.startsWith("audio/") || file.mimetype === "video/mp4";
+  if (!isSupportedType) {
+    return res.status(400).json({ error: "O arquivo enviado precisa ser um áudio (ou vídeo mp4)." });
   }
 
   try {

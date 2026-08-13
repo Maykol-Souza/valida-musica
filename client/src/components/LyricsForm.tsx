@@ -119,12 +119,12 @@ export default function LyricsForm({
       ) : (
         <div className="flex flex-col gap-3 rounded-lg border border-dashed border-indigo-500/40 bg-[#060913] p-4">
           <label htmlFor="audioFile" className="text-sm font-medium text-slate-300">
-            Arquivo de áudio (mp3, wav, m4a, ogg - até 20MB)
+            Arquivo de áudio ou vídeo (mp3, wav, m4a, ogg, mp4 - até 20MB)
           </label>
           <input
             id="audioFile"
             type="file"
-            accept="audio/*"
+            accept="audio/*,video/mp4"
             onChange={handleFileChange}
             disabled={busy}
             className="text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-200 hover:file:bg-slate-700"
